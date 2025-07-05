@@ -1,10 +1,4 @@
-//
-//  FileDecoder.swift
-//  
-//
-//  Created by Alberto Espinilla Garrido on 3/4/23.
-//
-
+// FILE: Sources/Tiktoken/FileDecoder.swift
 import Foundation
 
 struct FileDecoder {
@@ -13,13 +7,16 @@ struct FileDecoder {
         var result: [[UInt8]: Int] = .init()
         decoded.split(separator: "\n").forEach({
             let lineSplit = $0.split(separator: " ")
-            guard let first = lineSplit.first,
-                  let key = String(first).base64Decoded(),
-                  let value = lineSplit.last
+            guard lineSplit.count == 2,
+                  let first = lineSplit.first,
+                  let value = lineSplit.last,
+                  let keyData = Data(base64Encoded: String(first)), // Directly decode to Data
+                  let intValue = Int(value)
             else {
                 return
             }
-            result[key.uInt8] = Int(value)
+            // The key is the raw bytes from the decoded data
+            result[[UInt8](keyData)] = intValue
         })
         return result
     }
